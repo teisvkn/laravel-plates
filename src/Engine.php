@@ -23,9 +23,32 @@ class Engine implements EngineInterface
      */
     public function get($path, array $data = array())
     {
-        $path = substr($path, strlen($this->engine->getDirectory()));
-        $path = substr($path, 0, -strlen('.'.$this->engine->getFileExtension()));
+	    $path 	  = str_replace('.plates.php', '', $path);
+	    $viewpath = $this->getViewDirPath($path);
+	    $view 	  = str_replace($viewpath, '', $path);
 
-        return $this->engine->render($path, $data);
+	    // the Laravel view path, in which the view is found
+	    $this->engine->setDirectory($viewpath);
+
+	    // make the data available to all views and layouts being part of this render
+	    $this->engine->addData($data);
+
+	    return $this->engine->render($view);
     }
+
+
+	/**
+	 * Find Laravel view path for template
+	 * @param $path
+	 * @return string
+	 */
+	private function getViewDirPath($path)
+	{
+		foreach (\Config::get('view.paths') as $viewpath) {
+			if (strpos($path, $viewpath) === 0) {
+				return $viewpath;
+			}
+		}
+	}
+
 }

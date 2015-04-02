@@ -13,19 +13,17 @@ class LaravelPlatesServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $app = $this->app;
+	    $app = $this->app;
 
-        $app->singleton('League\Plates\Engine', function () use ($app) {
-            $path = $app['config']['view.paths'][0];
+	    $app->singleton('League\Plates\Engine', function () use ($app) {
+		    return new PlatesEngine(null, 'plates.php');
+	    });
 
-            return new PlatesEngine($path, 'plates.php');
-        });
-
-        $app->resolving('view', function($view) use ($app) {
-            $view->addExtension('plates.php', 'plates', function() use ($app) {
-                return new Engine($app->make('League\Plates\Engine'));
-            });
-        });
+	    $app->resolving('view', function($view) use ($app) {
+		    $view->addExtension('plates.php', 'plates', function() use ($app) {
+			    return new Engine($app->make('League\Plates\Engine'));
+		    });
+	    });
     }
 
 }
